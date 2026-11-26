@@ -142,7 +142,7 @@ textarea.inp{min-height:90px;direction:ltr}
 .hd{cursor:grab;color:var(--mut);display:inline-flex;align-items:center;padding:4px;touch-action:none}.hd:active{cursor:grabbing}
 .sortable-ghost{opacity:.4}
 #eyeBtn{cursor:pointer;background:transparent;border:1px solid rgba(244,241,232,.25);color:var(--hdink);width:36px;height:36px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;padding:0}#eyeBtn svg{width:18px;height:18px}#eyeBtn:hover{border-color:var(--gold);color:var(--gold)}
-.privacy .amt,.privacy #res,.privacy .sum strong,.privacy .kp strong,.privacy .dnC strong,.privacy svg text,.privacy td.n,.privacy .pl{filter:blur(8px)}
+.privacy .pl,.privacy [data-wopen],.privacy [data-hq],.privacy [data-sp-a]{-webkit-text-security:disc;text-security:disc}
 #lock{position:fixed;inset:0;z-index:30;background:var(--hd);color:var(--hdink);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;padding:20px}
 #lockDots{display:flex;gap:12px}#lockDots i{width:14px;height:14px;border-radius:50%;border:1.5px solid var(--gold)}#lockDots i.on{background:var(--gold)}
 .lockKeys{display:grid;grid-template-columns:repeat(3,72px);gap:12px;direction:ltr}.lockKeys button{height:72px;border-radius:50%;border:1px solid rgba(244,241,232,.25);background:transparent;color:inherit;font-size:24px;cursor:pointer}
@@ -302,7 +302,8 @@ ol.note li{margin-bottom:4px}
 const CONF=window.MASROFY_CONFIG||{},FBV='10.12.2',FBU='https://www.gstatic.com/firebasejs/'+FBV+'/';
 const $=s=>document.querySelector(s);
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const fmt=n=>(Math.round((+n||0)*100)/100).toLocaleString('en-US',{maximumFractionDigits:2});
+let PRIV=(()=>{try{return localStorage.getItem('masrofy-priv')==='1'}catch(_){return false}})();
+const fmt=n=>PRIV?'****':(Math.round((+n||0)*100)/100).toLocaleString('en-US',{maximumFractionDigits:2});
 const money=n=>`<span class="amt">${fmt(n)}</span> <span class="mut" style="font-size:.7em">ج.م</span>`;
 const pad=n=>String(n).padStart(2,'0');
 const today=()=>{const d=new Date();return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())};
@@ -889,7 +890,7 @@ document.addEventListener('keydown',e=>{if(tab!=='add'||!editable()||e.ctrlKey||
 
 /* ---------- hide amounts ---------- */
 const privOn=()=>{try{return localStorage.getItem('masrofy-priv')==='1'}catch(_){return false}};
-function applyPriv(){document.body.classList.toggle('privacy',privOn());$('#eyeBtn').innerHTML=privOn()?'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M3 3l18 18M10.6 6.1A9.8 9.8 0 0 1 12 6c5.5 0 9 6 9 6a15 15 0 0 1-3.2 3.8M6.5 7.6C4.3 9.2 3 12 3 12s3.5 6 9 6c1.4 0 2.7-.4 3.8-1"/><path d="M9.9 9.9a3 3 0 0 0 4.2 4.2"/></svg>':'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M2 12s3.6-6 10-6 10 6 10 6-3.6 6-10 6S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>';$('#eyeBtn').title=privOn()?'إظهار المبالغ':'إخفاء المبالغ'}
+function applyPriv(re){PRIV=privOn();document.body.classList.toggle('privacy',PRIV);if(re){render();requestAnimationFrame(drawCharts)}$('#eyeBtn').innerHTML=privOn()?'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M3 3l18 18M10.6 6.1A9.8 9.8 0 0 1 12 6c5.5 0 9 6 9 6a15 15 0 0 1-3.2 3.8M6.5 7.6C4.3 9.2 3 12 3 12s3.5 6 9 6c1.4 0 2.7-.4 3.8-1"/><path d="M9.9 9.9a3 3 0 0 0 4.2 4.2"/></svg>':'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M2 12s3.6-6 10-6 10 6 10 6-3.6 6-10 6S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>';$('#eyeBtn').title=privOn()?'إظهار المبالغ':'إخفاء المبالغ'}
 
 /* ---------- budget donut ---------- */
 let PIE='plan';
@@ -970,7 +971,7 @@ function setLang(l,save){LANG=l==='en'?'en':'ar';try{localStorage.setItem('masro
 $('#pieSeg').addEventListener('click',e=>{const b=e.target.closest('[data-p]');if(b){PIE=b.dataset.p;renderPie()}});
 document.querySelector('.lockKeys').addEventListener('click',e=>{const b=e.target.closest('[data-lk]');if(b)lockKey(b.dataset.lk)});
 document.addEventListener('keydown',e=>{if($('#lock').hidden)return;if(/^[0-9]$/.test(e.key))lockKey(e.key);else if(e.key==='Backspace')lockKey('⌫')});
-$('#eyeBtn').onclick=()=>{try{localStorage.setItem('masrofy-priv',privOn()?'0':'1')}catch(_){}applyPriv()};
+$('#eyeBtn').onclick=()=>{try{localStorage.setItem('masrofy-priv',privOn()?'0':'1')}catch(_){}applyPriv(true)};
 $('#langBtn').onclick=()=>setLang(LANG==='en'?'ar':'en',true);
 $('#langSeg').addEventListener('click',e=>{const b=e.target.closest('[data-lg]');if(b)setLang(b.dataset.lg,true)});
 $('#themeBtn').onclick=()=>{const o=['auto','light','dark'],t=o[(o.indexOf(getTheme())+1)%3];setTheme(t);toast('المظهر: '+TH[t][0])};
