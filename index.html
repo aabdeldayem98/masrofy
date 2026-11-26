@@ -116,7 +116,10 @@ textarea.inp{min-height:90px;direction:ltr}
 @media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 @media(max-width:600px){table{font-size:14px}.stack thead{display:none}.stack tr{display:grid;padding-block:10px;border-bottom:1px solid var(--line)}.stack td{display:flow-root;border:0;padding:3px 0;padding-inline-start:8em;text-align:start}.stack td::before{content:attr(data-l);float:inline-start;width:7.5em;margin-inline-start:-8em;color:var(--mut)}.stack td:empty{display:none}}
 .signin{max-width:440px;margin:60px auto;text-align:center}.signin svg{width:64px;height:64px;margin-bottom:10px}
-#installBtn{cursor:pointer;background:transparent;font:inherit;font-size:12px}#installBtn:hover{border-color:var(--gold);color:var(--gold)}
+#themeBtn{cursor:pointer;background:transparent;border:1px solid rgba(244,241,232,.25);color:var(--hdink);width:36px;height:36px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;padding:0}#themeBtn svg{width:18px;height:18px}#themeBtn:hover{border-color:var(--gold);color:var(--gold)}
+:root[lang=en] h2,:root[lang=en] h3,:root[lang=en] .brand,:root[lang=en] .month b{font-family:"IBM Plex Sans Arabic",system-ui,sans-serif}
+#langBtn{cursor:pointer;background:transparent;border:1px solid rgba(244,241,232,.25);color:var(--hdink);height:36px;min-width:36px;border-radius:18px;padding:0 10px;font:600 13px/1 "IBM Plex Sans Arabic",sans-serif}#langBtn:hover{border-color:var(--gold);color:var(--gold)}
+#acct{cursor:pointer;background:transparent;font:inherit;font-size:12px;direction:ltr}#installBtn{cursor:pointer;background:transparent;font:inherit;font-size:12px}#installBtn:hover{border-color:var(--gold);color:var(--gold)}
 a.btn{display:inline-flex;align-items:center;justify-content:center;text-decoration:none}
 ol.note li{margin-bottom:4px}
 </style>
@@ -125,7 +128,7 @@ ol.note li{margin-bottom:4px}
 <body>
 <header class="top"><div class="wrap">
   <div class="bar">
-    <span class="brand"><svg viewBox="0 0 40 40" aria-hidden="true"><rect x="5" y="5" width="30" height="30" rx="8" fill="none" stroke="#b0905a" stroke-width="1.5"/><path d="M20 12l5 8-5 8-5-8z" fill="#b0905a"/></svg><span>مصروفي<span class="hi" id="hello"></span></span></span><span class="badge" id="mode">جاري التحميل…</span><button class="badge" id="installBtn" hidden>تثبيت التطبيق</button>
+    <span class="brand"><svg viewBox="0 0 40 40" aria-hidden="true"><rect x="5" y="5" width="30" height="30" rx="8" fill="none" stroke="#b0905a" stroke-width="1.5"/><path d="M20 12l5 8-5 8-5-8z" fill="#b0905a"/></svg><span>مصروفي<span class="hi" id="hello"></span></span></span><span class="badge" id="mode">جاري التحميل…</span><button class="badge" id="installBtn" hidden>تثبيت التطبيق</button><button class="badge" id="acct" hidden title="الحساب والإعدادات"></button><button id="themeBtn" aria-label="تغيير المظهر"></button><button id="langBtn" aria-label="Language / اللغة">EN</button>
     <div class="month"><button class="ib" id="mPrev" aria-label="الشهر اللي فات">›</button><b id="mLab"></b><button class="ib" id="mNext" aria-label="الشهر الجاي">‹</button></div>
   </div>
   <nav class="tabs" id="tabs" role="tablist"></nav>
@@ -133,6 +136,7 @@ ol.note li{margin-bottom:4px}
 
 <main class="wrap">
   <div id="loading" class="empty" style="padding:80px 10px">جاري تحميل بياناتك…</div>
+  <div class="alert" id="viewBanner" hidden style="margin-top:18px"><span>بتتفرج على حساب <b id="vbName"></b> (عرض بس)</span><button class="btn sm ghost" data-act="viewBack">رجوع لحسابي</button></div>
   <section class="sum" id="sum" hidden></section>
   <section class="alerts" id="alerts"></section>
 
@@ -232,23 +236,27 @@ ol.note li{margin-bottom:4px}
           <div class="acts" style="margin-top:10px"><button class="btn sm" data-act="addBill">إضافة</button></div></div>
       </div>
       <div>
+        <div class="card"><h3>المظهر</h3><div class="seg" id="themeSeg" style="grid-template-columns:1fr 1fr 1fr"><button data-th="light">نهاري</button><button data-th="dark">ليلي</button><button data-th="auto">تلقائي</button></div><p class="note" style="margin-top:8px">«تلقائي» بيمشي مع إعداد الموبايل أو الكمبيوتر.</p><span class="lab" style="margin-top:12px">Language / اللغة</span><div class="seg" id="langSeg" style="grid-template-columns:1fr 1fr"><button data-lg="ar" class="nt">العربية</button><button data-lg="en" class="nt">English</button></div></div>
         <div class="card"><h3>بنود الميزانية</h3><div id="sBuckets"></div><div class="acts" style="margin-top:10px"><input class="inp" id="nBucket" placeholder="بند جديد" style="flex:1"><button class="btn sm" data-act="addBucket">إضافة</button></div>
           <p class="note">«يترحّل» يعني اللي يفضل من البند آخر الشهر يتضاف لميزانيته الشهر اللي بعده.</p></div>
         <div class="card"><h3>أنواع الدخل والمصروف</h3><span class="lab">دخل</span><div class="chips" id="sCatIn"></div><span class="lab">مصروف</span><div class="chips" id="sCatOut"></div></div>
         <div class="card"><h3>المحافظ</h3><div id="sWallets"></div><div class="acts" style="margin-top:10px"><input class="inp" id="nWallet" placeholder="محفظة جديدة (مثلاً InstaPay)" style="flex:1"><button class="btn sm" data-act="addWallet">إضافة</button></div></div>
         <div class="card"><h3>المشاركة مع حد</h3><div id="share"></div></div>
-        <div class="card"><h3>الشيت والإكسيل والملخص</h3><div id="sheetBox"></div></div>
+        <div class="card"><h3>الملخص والحساب</h3><div id="sheetBox"></div></div>
       </div>
     </div>
   </section>
 
-  <section class="panel" id="p-signin"><div class="card signin"><svg viewBox="0 0 40 40" aria-hidden="true"><rect x="5" y="5" width="30" height="30" rx="8" fill="none" stroke="#b0905a" stroke-width="1.5"/><path d="M20 12l5 8-5 8-5-8z" fill="#b0905a"/></svg><h2>أهلاً بيك في مصروفي</h2><p class="note">سجّل دخول بحساب جوجل اللي عامل بيه الشيت.</p><button class="btn" data-act="signin" style="margin-top:10px">تسجيل الدخول بجوجل</button></div></section>
-  <section class="panel" id="p-stranger"><div class="card signin"><h2>الحساب ده مش صاحب التطبيق</h2><p class="note" id="strangerMail"></p><p class="note">لو حد شارك معاك بياناته، افتح اللينك اللي بعتهولك.</p><button class="btn ghost" data-act="logout">تسجيل خروج</button></div></section>
+  <section class="panel" id="p-signin"><div class="card signin"><svg viewBox="0 0 40 40" aria-hidden="true"><rect x="5" y="5" width="30" height="30" rx="8" fill="none" stroke="#b0905a" stroke-width="1.5"/><path d="M20 12l5 8-5 8-5-8z" fill="#b0905a"/></svg><h2>أهلاً بيك في مصروفي</h2><p><button class="chip nt" data-act="lang" style="margin:4px auto">English / العربية</button></p><p class="note">سجّل دخول بحساب جوجل عشان تبدأ تنظّم مصاريفك.</p><button class="btn" data-act="signin" style="margin-top:10px">تسجيل الدخول بجوجل</button><p class="note" style="margin-top:16px;font-size:13px">بتسجيلك بتوافق إن بياناتك بتتحفظ في قاعدة بيانات التطبيق، وإن مدير التطبيق يقدر يطّلع عليها للدعم الفني وحل المشاكل.</p></div></section>
+  <section class="panel" id="p-waiting"><div class="card signin"><h2>طلبك وصل ✓</h2><p class="note">حسابك مستني موافقة مدير التطبيق. أول ما يوافق، افتح التطبيق تاني وهتلاقيه جاهز.</p><div class="acts" style="justify-content:center;margin-top:10px"><button class="btn ghost" data-act="recheck">اتأكد تاني</button><button class="btn ghost" data-act="logout">تسجيل خروج</button></div></div></section>
+  <section class="panel" id="p-blocked"><div class="card signin"><h2>الحساب ده متوقف</h2><p class="note">تواصل مع مدير التطبيق.</p><button class="btn ghost" data-act="logout">تسجيل خروج</button></div></section>
+  <section class="panel" id="p-admin"><div class="card"><h2>المستخدمين</h2><div class="filters"><input class="inp" id="uq" placeholder="بحث بالإيميل أو الاسم"><select class="inp" id="uf"><option value="">الكل</option><option value="pending">مستنيين موافقة</option><option value="active">مفعّلين</option><option value="blocked">متوقفين</option></select></div><div id="uList"><div class="empty">بيحمّل…</div></div></div></section>
   <section class="panel" id="p-none"><div class="card empty"><h2>اللينك ده مش متاح</h2><p>اطلب من صاحب الحساب لينك مشاركة جديد.</p></div></section>
 </main>
 <div id="modal" hidden><img id="mImg" alt="صورة الإيصال"><button class="btn sm" data-act="closeModal">إغلاق</button></div>
 <div id="toast" role="status"><span id="tMsg"></span><button id="tUndo" hidden>تراجع</button></div>
 
+<script>try{const t=localStorage.getItem('masrofy-theme');if(t==='light'||t==='dark')document.documentElement.dataset.theme=t}catch(_){}</script>
 <script src="config.js"></script>
 <script>
 {
@@ -260,7 +268,20 @@ const money=n=>`<span class="amt">${fmt(n)}</span> <span class="mut" style="font
 const pad=n=>String(n).padStart(2,'0');
 const today=()=>{const d=new Date();return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())};
 const ymOf=d=>String(d).slice(0,7);
-const MN=['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
+const MN_AR=['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'],MN_EN=['January','February','March','April','May','June','July','August','September','October','November','December'];
+/* ---------- language (Arabic / English) ---------- */
+const I18N={"بتسجيلك بتوافق إن بياناتك بتتحفظ في قاعدة بيانات التطبيق، وإن مدير التطبيق يقدر يطّلع عليها للدعم الفني وحل المشاكل": "By signing up, you agree that your data is stored in the app's database, and that the app administrator can access it for technical support and troubleshooting", "المتكرر للموافقة، والفواتير قبل ميعادها، وتنبيه الـ٨٠٪، والملخص الشهري، وكل إشعار فيه أزرار تسجّل منها على طول": "recurring items for approval, bills before their due date, the 80% alert, the monthly summary — and every notification has buttons to record right away", "نسخة من بيانات كل المستخدمين بتتحدث في الشيت كل يوم الصبح، في صفحة «كل المستخدمين»، وتقدر تربطها بـ": "A copy of all users' data is refreshed in the sheet every morning, on the «All users» page, and you can connect it to", "في يومها هيوصلك إشعار تختار منه «سجّلها» أو «لا»، وهتلاقيها كمان في التنبيهات جوه التطبيق": "On its day you'll get a notification to choose «Record it» or «No», and you'll also find it in the in-app alerts", "قبل ميعادها بعدد الأيام اللي تحدده هيوصلك إشعار فيه زرار «اتدفعت، سجّلها»": "Before the due date, by the number of days you set, you'll get a notification with a «Paid, record it» button", "يترحّل» يعني اللي يفضل من البند آخر الشهر يتضاف لميزانيته الشهر اللي بعده": "Roll over» means whatever is left in the item at month end is added to its budget next month", "أي مصروف على بند «ادخار» أو «استثمار» تقدر تربطه بهدف من شاشة الإضافة": "Any expense on «Savings» or «Investment» can be linked to a goal from the Add screen", "المخطط ده خاص بالشهر ده، وبيتنقل تلقائي للشهور الجاية لحد ما تغيّره": "This plan is for this month only, and carries over to the coming months until you change it", "الدهب بالجرام والدولار بالعدد، وقيمتهم بتتحسب من الأسعار اللي فوق": "Gold in grams and dollars by count; their value is calculated from the prices above", "اللي معاه اللينك بيشوف من غير ما يعدّل حاجة، فابعته للشخص ده بس": "Whoever has the link can view without editing anything, so send it to that person only", "أول ما يوافق، افتح التطبيق تاني وهتلاقيه جاهز": "Once approved, open the app again and it will be ready", "فلوس عليك، ومصروف على بند «سداد ديون» بيقللها": "money you owe; an expense on «Debt payment» reduces it", "تلقائي» بيمشي مع إعداد الموبايل أو الكمبيوتر": "Auto» follows your phone or computer setting", "سجّل دخول بحساب جوجل عشان تبدأ تنظّم مصاريفك": "Sign in with Google to start organizing your expenses", "فلوس ليك عند حد، ودخل «استرداد سلفة» بيقللها": "money someone owes you; «Loan repayment» income reduces it", "المخطط ده متنقل من آخر شهر حددت فيه ميزانية": "This plan was carried over from the last month you set a budget", "ابعتلي ملخص الشهر على الإيميل أول كل شهر": "Email me the monthly summary at the start of each month", "احسب الادخار والاستثمار المتسجلين تلقائي": "Count recorded savings and investments automatically", "اقترح عليّ أحوّل فايض الميزانية للادخار": "Suggest moving the budget surplus to savings", "اعمل لينك خاص لكل شخص وحدد هو يشوف إيه": "Create a private link for each person and choose what they see", "الإشعارات مقفولة للموقع ده من المتصفح": "Notifications are blocked for this site in the browser", "اطلب من صاحب الحساب لينك مشاركة جديد": "Ask the account owner for a new share link", "التذكير اليومي بيوصل الساعة ٩ الصبح": "The daily reminder arrives at 9 AM", "المبالغ المترحّلة محسوبة فوق المخطط": "Carried-over amounts are added on top of the plan", "فعّلها على كل جهاز عايز يوصله إشعار": "Enable it on every device you want notified", "استيراد بياناتي من النسخة القديمة": "Import my data from the old version", "اكتب الاسم والمبلغ ويوم الاستحقاق": "Enter the name, amount and due day", "الإشعارات على الموبايل والكمبيوتر": "Notifications on phone and computer", "افتحها من القفل اللي جنب العنوان": "Open them from the lock next to the address", "الإشعارات بتشتغل بعد ما تملا ملف": "Notifications work after you fill in", "في يومها هيوصلك إشعار توافق عليه": "On its day you'll get a notification to approve", "نسبة الادخار والاستثمار من الدخل": "Savings & investment share of income", "ابعت ملخص الشهر اللي فات دلوقتي": "Send last month's summary now", "الإشعارات اتفعّلت على الجهاز ده": "Notifications are on for this device", "حسابك مستني موافقة مدير التطبيق": "Your account is waiting for the administrator's approval", "مفيش اتصال بالإنترنت، جرّب تاني": "No internet connection, try again", "الإيصالات مش متاحة في المشاركة": "Receipts aren't available in shared links", "المتوقع لآخر الشهر بنفس المعدل": "Projected month-end at the same rate", "حط السعر فوق عشان القيمة تتحسب": "Enter the price above to calculate the value", "الإشعارات شغالة على الجهاز ده": "Notifications are working on this device", "التقسيم محتاج بندين على الأقل": "A split needs at least two items", "المتصفح ده مش بيدعم الإشعارات": "This browser doesn't support notifications", "تقدر تقفله أو تمسحه في أي وقت": "You can turn it off or delete it anytime", "مثلاً سبيكة، شهادة، قسط عربية": "e.g. gold bar, certificate, car installment", "الإشعارات بتشتغل بعد ما تملا": "Notifications work after you fill in", "فعّل الإشعارات على الجهاز ده": "Enable notifications on this device", "اتحذفت المعاملة بكل أجزائها": "Transaction deleted with all its parts", "بحث في الملاحظات أو الأشخاص": "Search notes or people", "اختار نوع الدخل أو المصروف": "Choose the income or expense type", "المبلغ أو العملية الحسابية": "Amount or calculation", "تقدر تعدّل المبلغ من السجل": "You can edit the amount from the log", "هتلاقيه في قايمة التطبيقات": "You'll find it in your apps list", "الدخل والمصروف آخر ٦ شهور": "Income & expenses, last 6 months", "مفيش مصروفات في الفترة دي": "No expenses in this period", "يشوف الملاحظات والإيصالات": "Sees notes and receipts", "أي تعديل هيتحفظ للشهر ده": "Any change will be saved for this month", "لازم توافق على الإشعارات": "You need to allow notifications", "مترحّل من الشهر اللي فات": "Carried over from last month", "مجموع التقسيم لازم يساوي": "The split total must equal", "اتبعت الملخص على إيميلك": "The summary was sent to your email", "الإشعارات مش متظبطة لسه": "Notifications aren't set up yet", "الدخل والمصروف شهر بشهر": "Income & expenses month by month", "مفيش ديون أو سلف متسجلة": "No debts or loans recorded", "مقدرتش أجيب توكن الجهاز": "Couldn't get the device token", "هيستبدل بياناتك الحالية": "It will replace your current data", "اترفعت الصورة، دوس حفظ": "Photo uploaded, tap Save", "اختار محفظتين مختلفتين": "Choose two different wallets", "اكتب اسم الهدف والمبلغ": "Enter the goal name and amount", "حدد هو يشوف إيه وانسخه": "Choose what they can see and copy it", "دهب ودولار وأصول تانية": "Gold, dollars & other assets", "مقدرتش أفعّل الإشعارات": "Couldn't enable notifications", "اكتب الكمية أو القيمة": "Enter the quantity or value", "اكتب مبلغ أكبر من صفر": "Enter an amount greater than zero", "البنود على مدار السنة": "Items over the year", "انسخ اللينك من المربع": "Copy the link from the box", "بحث بالإيميل أو الاسم": "Search by email or name", "تقسيم على أكتر من بند": "Split across several items", "تواصل مع مدير التطبيق": "Contact the app administrator", "حصلت مشكلة، جرّب تاني": "Something went wrong, try again", "فكّرني قبلها بكام يوم": "Remind me how many days before", "مصروف على بند «تسليف»": "An expense on «Lending»", "معاملات متكررة كل شهر": "Monthly recurring transactions", "أنواع الدخل والمصروف": "Income & expense types", "ادخار واستثمار متسجل": "Recorded savings & investment", "حط الباقي في آخر بند": "Put the rest in the last item", "متوسط الصرف في اليوم": "Average daily spending", "مش مسموح بالعملية دي": "This action isn't allowed", "مفيش نتايج للفلتر ده": "No results for this filter", "مقدرتش أحمّل التطبيق": "Couldn't load the app", "أهلاً بيك في مصروفي": "Welcome to Masrofy", "اسم المحفظة الجديدة": "New wallet name", "موزّع أكتر من الدخل": "Allocated more than income", "، وبعدين دوس تفعيل": ", then tap Enable", "اكتب الاسم والمبلغ": "Enter the name and amount", "الفاتورة مش موجودة": "Bill not found", "تسجيل الدخول بجوجل": "Sign in with Google", "تقدر تكتب عملية زي": "You can type a calculation like", "جاري تحميل بياناتك": "Loading your data", "دخل «استلاف / قرض»": "«Borrowing / loan» income", "على أندرويد استخدم": "On Android use", "فلوس ليك عند الناس": "Money people owe you", "متبقي من الميزانية": "Left in budget", "مقدرتش أحمّل حسابك": "Couldn't load your account", "، اشتراك النت يوم": ", internet subscription on day", "ابعت إشعار تجريبي": "Send a test notification", "اتأكد من الإنترنت": "Check your internet connection", "اضغط تاني للتأكيد": "Tap again to confirm", "الحساب والإعدادات": "Account & settings", "الفواتير والتذكير": "Bills & reminders", "اللينك ده مش متاح": "This link isn't available", "المصروف حسب النوع": "Spending by type", "تلقائي حسب الجهاز": "Auto, follows the device", "مقدرتش أسجّل دخول": "Couldn't sign in", "وترفع التطبيق على": "and upload the app to", "الإيصال مش موجود": "Receipt not found", "الكمية أو القيمة": "Quantity or value", "الميزانية العامة": "General budget", "بيفعّل الإشعارات": "Enabling notifications", "بيفكّرك قبلها بـ": "reminds you, days before:", "من ميزانية الشهر": "of this month's budget", "موزّع على البنود": "Allocated to items", "ميعادها النهارده": "Due today", "اتحذفت المعاملة": "Transaction deleted", "اتدفعت الشهر ده": "Paid this month", "اتعملت الشهر ده": "Done this month", "الحساب ده متوقف": "This account is suspended", "الديون والتسليف": "Debts & lending", "الموبايل واللاب": "phone and laptop", "بتتفرج على حساب": "You're viewing the account of", "تحوّله للادخار؟": "Move it to savings?", "تنزيل ملف إكسيل": "Download Excel file", "عرض حساب مستخدم": "Viewing a user's account", "محفظة إلكترونية": "E-wallet", "مفيش معاملات في": "No transactions in", "اتدفعت، سجّلها": "Paid, record it", "اكتب اسم الشخص": "Enter the person's name", "التزامات تانية": "Other liabilities", "الدخل والمصروف": "Income & expenses", "الشهر اللي فات": "Last month", "الصرف يوم بيوم": "Day-by-day spending", "المبلغ المتوقع": "Expected amount", "المبلغ المطلوب": "Target amount", "المشاركة مع حد": "Share with someone", "المصروف اليومي": "Daily spending", "الملخص والحساب": "Summary & account", "بنود الميزانية": "Budget items", "بيحمّل الإيصال": "Loading receipt", "سعر جرام الدهب": "Gold price per gram", "عدّى الميزانية": "went over budget", "متسجلة قبل كده": "Already recorded", "مستنيين موافقة": "Awaiting approval", "مفيش أهداف لسه": "No goals yet", "من غير ميزانية": "No budget", "مواصلات وبنزين": "Transport & fuel", "هدايا ومناسبات": "Gifts & occasions", "وهتتحسب لوحدها": "and it will be calculated automatically", "، الإيجار يوم": ", rent on day", "، وعلى ويندوز": ", and on Windows", "أرصدة المحافظ": "Wallet balances", "أهداف الادخار": "Savings goals", "إلغاء التعديل": "Cancel edit", "إيداع / تحويل": "Deposit / transfer", "اتسجلت فاتورة": "Bill recorded", "الرصيد الحالي": "Current balance", "بند الميزانية": "Budget item", "تثبيت التطبيق": "Install app", "تعليم وكورسات": "Courses & education", "تنبيه ميزانية": "Budget alert", "حدد الميزانية": "Set a budget", "عدّيت ميزانية": "You went over the budget of", "مثلاً الكهربا": "e.g. electricity", "معاملة متكررة": "Recurring transaction", "مفيش مستخدمين": "No users", "ميزانية الشهر": "This month's budget", "يوم الاستحقاق": "Due day", "أكبر نوع صرف": "Top spending type", "إجمالي الشهر": "Month total", "إيجار وأقساط": "Rent & installments", "اتعمل اللينك": "Link created", "اتمسح اللينك": "Link deleted", "اتنسخ اللينك": "Link copied", "استرداد سلفة": "Loan repayment", "استلاف / قرض": "Borrowing / loan", "اسم الفاتورة": "Bill name", "الميعاد عدّى": "Deadline passed", "بيرفع الصورة": "Uploading photo", "تعديل معاملة": "Edit transaction", "تغيير المظهر": "Change appearance", "جاري التحميل": "Loading", "رصيد البداية": "Opening balance", "صورة الإيصال": "Receipt photo", "عائد استثمار": "Investment returns", "فايض ميزانية": "Budget surplus", "فلوس المحافظ": "Wallet money", "في الشهر لحد": "per month until", "لسه مش موزّع": "Not yet allocated", "متوزع بالظبط": "Allocated exactly", "مثلاً المرتب": "e.g. salary", "مستني موافقة": "Awaiting approval", "مصروف العيلة": "Family expenses", "معاملة جديدة": "New transaction", "يوم في الشهر": "Day of month", "الشهر الجاي": "Next month", "المخطط لبند": "Plan for item", "بند واحد بس": "One item only", "تقرير الشهر": "Monthly report", "حوافز وبونص": "Bonuses & incentives", "رجوع لحسابي": "Back to my account", "سجل الإنفاق": "Spending log", "سعر الدولار": "Dollar rate", "صافي الثروة": "Net worth", "عرض الإيصال": "View receipt", "عرض بياناته": "View their data", "مثلاً زوجتي": "e.g. my wife", "مثلاً عربية": "e.g. a car", "محتاج توفّر": "You need to save", "محفظة جديدة": "New wallet", "مصروف البيت": "Home expenses", "مصروف السنة": "Yearly expenses", "مصروف الشهر": "Monthly expenses", "من ميزانيته": "of its budget", "ميعادها بعد": "Due in", "آخر ٢٤ شهر": "last 24 months", "أصول تانية": "Other assets", "أكل وبقالة": "Food & groceries", "إرفاق صورة": "Attach photo", "اتأكد تاني": "Check again", "اختار صورة": "Choose a photo", "افتح الشيت": "Open sheet", "المرتب يوم": "salary on day", "المستخدمين": "Users", "تسجيل خروج": "Sign out", "حصلت مشكلة": "Something went wrong", "رصيد بداية": "opening balance", "شهور محددة": "Specific months", "شيل الصورة": "Remove photo", "صباح الخير": "Good morning", "فواتير ونت": "Bills & internet", "مثلاً عيار": "e.g. karat", "مساء الخير": "Good evening", "مصروف شخصي": "Personal expenses", "من غير بند": "No item", "من ميزانية": "of budget", "يتحسب لهدف": "Counts toward goal", "أضف محفظة": "Add wallet", "إلى محفظة": "To wallet", "اسم البند": "Item name", "اسم الشخص": "Person's name", "اسم النوع": "Type name", "اسم الهدف": "Goal name", "الإعدادات": "Settings", "الجهاز ده": "This device", "الميزانية": "Budget", "تقرير سنة": "Yearly report", "دخل السنة": "Yearly income", "دخل الشهر": "Monthly income", "ديون عليك": "Debts you owe", "سجل الشهر": "Month log", "سداد ديون": "Debt payment", "شغل إضافي": "Side work", "صحة وعلاج": "Health & medical", "فلوس عليك": "Money you owe", "كل البنود": "All items", "كل الشهور": "All months", "مش موجودة": "Not found", "مصروف آخر": "Other expense", "آخر حركة": "Last activity", "أسجّلها؟": "Record it?", "اتبعت لـ": "Sent to", "اشتراكات": "Subscriptions", "التقارير": "Reports", "بدون بند": "No item", "بدون هدف": "No goal", "بند جديد": "New item", "تحويل من": "Transfer from", "طاب يومك": "Have a nice day", "طلبك وصل": "Request received", "عمل لينك": "Create link", "في الشهر": "per month", "ليك عنده": "They owe you", "من محفظة": "From wallet", "أصل آخر": "Other asset", "أندرويد": "Android", "اتجاهلت": "Ignored", "اختياري": "Optional", "استثمار": "Investment", "الإدارة": "Admin", "الإيصال": "Receipt", "التاريخ": "Date", "المحافظ": "Wallets", "المحفظة": "Wallet", "المصروف": "Expenses", "تحويلات": "Transfers", "دخل آخر": "Other income", "عرض فقط": "View only", "عليك له": "You owe them", "قبل شهر": "Before month", "متوقفين": "Suspended", "مستنيين": "Waiting", "مفعّلين": "Active", "أكتوبر": "October", "اتثبّت": "Installed", "اتسجلت": "Recorded", "اتضافت": "Added", "اتعدلت": "Edited", "اتفعّل": "Activated", "اتنقلت": "Moved", "الأعلى": "Highest", "التزام": "Liability", "الشهور": "Months", "الصافي": "Net", "المبلغ": "Amount", "المتاح": "Available", "المخطط": "Planned", "المظهر": "Appearance", "النسبة": "Share", "بيحمّل": "Loading", "تلقائي": "Auto", "خروجات": "Outings", "ديسمبر": "December", "سبتمبر": "September", "سجّلها": "Record it", "عرض بس": "View only", "فاتورة": "Bill", "فبراير": "February", "متأخرة": "Overdue", "مصروفي": "Masrofy", "معاملة": "Transaction", "معاينة": "Preview", "ملاحظة": "Note", "موافقة": "Approve", "نوفمبر": "November", "هيوصلك": "you'll get", "ويندوز": "Windows", "يترحّل": "Rolls over", "آيفون": "iPhone", "أبريل": "April", "أغسطس": "August", "إضافة": "Add", "إغلاق": "Close", "إلغاء": "Cancel", "إيصال": "Receipt", "إيقاف": "Suspend", "اتجمع": "Saved", "اتحقق": "Achieved", "اتحول": "Moved", "اتصرف": "Spent", "اتضاف": "Added", "اتوقف": "Suspended", "ادخار": "Savings", "الاسم": "Name", "البند": "Item", "البنك": "Bank", "السجل": "Log", "السنة": "Year", "الشخص": "Person", "الشهر": "Month", "النوع": "Type", "بيحفظ": "Saving…", "تحويل": "Transfer", "تراجع": "Undo", "تسليف": "Lending", "تشغيل": "Turn on", "تفعيل": "Enable", "تقرير": "Report", "تنبيه": "Alert", "حوّله": "Move it", "دولار": "Dollar", "زيادة": "Over by", "شغّال": "Active", "صيانة": "Maintenance", "طوارئ": "Emergency", "متكرر": "Recurring", "متوسط": "Average", "متوقف": "Paused", "مثبّت": "Installed", "مثلاً": "e.g.", "محفوظ": "Saved", "مصروف": "Expense", "مفعّل": "Active", "مقسّم": "Split", "نهاري": "Light", "يناير": "January", "يوليو": "July", "يونيو": "June", "الكل": "All", "تمام": "OK", "جرام": "gram", "جهاز": "Device", "فاضل": "Left", "كمية": "Quantity", "ليلي": "Dark", "مارس": "March", "مايو": "May", "مثال": "Example", "مرتب": "Salary", "هدية": "Gift", "أصل": "Asset", "أضف": "Add", "إلى": "to", "بند": "Item", "حذف": "Delete", "حفظ": "Save", "دخل": "Income", "دهب": "Gold", "شيل": "Remove", "كاش": "Cash", "لبس": "Clothes", "لسه": "not yet", "ماك": "Mac", "مسح": "Clear", "نسخ": "Copy", "وصل": "reached", "يوم": "day", "أو": "or", "لا": "No", "من": "of", "ج.م": "EGP", "ج.م للادخار": "EGP to savings", "؟": "?", "شهر": "month"};
+let LANG=(()=>{try{return localStorage.getItem('masrofy-lang')||'ar'}catch(_){return'ar'}})();
+let MN=LANG==='en'?MN_EN:MN_AR;
+const IRX=new RegExp('(?<![\\u0600-\\u06FF])('+Object.keys(I18N).sort((a,b)=>b.length-a.length).map(k=>k.replace(/[.*+?^${}()|[\]\\/]/g,'\\$&')).join('|')+')(?![\\u0600-\\u06FF])','g'),HAS_AR=/[\u0600-\u06FF]/;
+function T(s){return LANG==='en'&&s&&HAS_AR.test(s)?String(s).replace(IRX,m=>I18N[m]).replace(/[٠-٩]/g,d=>'٠١٢٣٤٥٦٧٨٩'.indexOf(d)):s}
+const ORIG=new WeakMap(),TATTR=['placeholder','title','aria-label'];
+function trNode(n){
+ if(n.nodeType===3){const pa=n.parentNode;if(!pa||(pa.closest&&pa.closest('.nt,script,style')))return;let o=ORIG.get(n);if(o===undefined){if(!HAS_AR.test(n.nodeValue))return;o=n.nodeValue;ORIG.set(n,o)}const v=LANG==='en'?T(o):o;if(n.nodeValue!==v)n.nodeValue=v;return}
+ if(n.nodeType!==1||n.matches('.nt,script,style'))return;
+ for(const a of TATTR){if(!n.hasAttribute(a))continue;const k='data-ar-'+a;let o=n.getAttribute(k);if(o==null){const v=n.getAttribute(a);if(!HAS_AR.test(v))continue;o=v;n.setAttribute(k,o)}n.setAttribute(a,LANG==='en'?T(o):o)}
+ n.childNodes.forEach(trNode)}
+new MutationObserver(ms=>{if(LANG!=='en')return;for(const m of ms)m.addedNodes.forEach(trNode)}).observe(document.body,{childList:true,subtree:true});
 const ymLabel=ym=>MN[+ym.slice(5)-1]+' '+ym.slice(0,4);
 const shiftYm=(ym,k)=>{let y=+ym.slice(0,4),m=+ym.slice(5)-1+k;y+=Math.floor(m/12);m=((m%12)+12)%12;return y+'-'+pad(m+1)};
 const dim=ym=>new Date(+ym.slice(0,4),+ym.slice(5),0).getDate();
@@ -268,7 +289,7 @@ const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,7);
 const clone=o=>JSON.parse(JSON.stringify(o??null));
 const COL=['#4a5fa8','#a23b4c','#b0905a','#5b4b8a','#2f7d63','#9c6b3f','#7a7f99','#3f7f95','#8a5a83','#6f8a4e'];
 const SPECIAL_B=['save','invest','debt','lend'],SPECIAL_C=['i_repay','i_borrow'],GOOD_B=['save','invest'];
-const TABS=[['add','إضافة'],['log','السجل'],['budget','الميزانية'],['reports','التقارير'],['debts','الديون والتسليف'],['settings','الإعدادات']];
+const TABS=[['add','إضافة'],['log','السجل'],['budget','الميزانية'],['reports','التقارير'],['debts','الديون والتسليف'],['settings','الإعدادات'],['admin','الإدارة']];
 const SECS=[['budget','الميزانية العامة'],['log','سجل الإنفاق'],['reports','التقارير'],['debts','الديون والتسليف']];
 
 let cfg={cats:{in:[],out:[]},buckets:[],wallets:[],plans:{},goals:[],rec:[],bills:[],holdings:[],settings:{}};
@@ -278,28 +299,73 @@ const E={k:'out',expr:'',cat:null,b:'home',w:'',w2:'',d:today(),note:'',person:'
 const L={q:'',k:'',b:''};
 const rcCache={};
 
-/* ---------- server bridge ---------- */
+/* ---------- data layer: Firestore (each user has his own data) ---------- */
 const PREVIEW=!CONF.apiUrl;
-let busy=0;
+let busy=0,META={},ADMIN=false,ME=null,VIEWAS=null,VIEWNAME='',savedM={},lastShare={};
 function setSync(){if(role==='owner')$('#mode').textContent=busy?'بيحفظ…':(PREVIEW?'معاينة':'محفوظ')}
-async function authObj(force){if(SHARE)return{share:SHARE};if(!USER)return{};return{idToken:await USER.getIdToken(!!force)}}
+async function authObj(force){if(!USER)return{};return{idToken:await USER.getIdToken(!!force)}}
 async function post(fn,a,force){const r=await fetch(CONF.apiUrl,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({fn,args:a,auth:await authObj(force)})});return r.json()}
+const SERVER=['api_testPush','api_sendSummary','api_migrate'];
+function errMsg(e){const c=e&&e.code||'';if(/permission-denied/.test(c))return'مش مسموح بالعملية دي';if(/unavailable|network/.test(c)||e.message==='Failed to fetch')return'مفيش اتصال بالإنترنت، جرّب تاني';return e&&e.message||'حصلت مشكلة، جرّب تاني'}
 async function call(fn,...a){busy++;setSync();
- try{let j;if(PREVIEW)j={ok:true,data:MOCK[fn]?MOCK[fn](...a):{ok:true}};else{j=await post(fn,a);if(!j.ok&&j.code==='auth'&&USER)j=await post(fn,a,true)}
-  if(!j.ok){if(j.code==='auth'){role='signin';render()}throw new Error(j.error||'حصلت مشكلة')}
-  return j.data}
- catch(e){toast(e.message==='Failed to fetch'?'مفيش اتصال بالإنترنت، جرّب تاني':(e.message||'حصلت مشكلة، جرّب تاني'));throw e}
+ try{if(PREVIEW)return MOCK[fn]?MOCK[fn](...a):{ok:true};
+  if(SERVER.includes(fn)){let j=await post(fn,a);if(!j.ok&&j.code==='auth')j=await post(fn,a,true);if(!j.ok)throw new Error(j.error||'حصلت مشكلة');return j.data}
+  return await FSA[fn](...a)}
+ catch(e){toast(errMsg(e));throw e}
  finally{busy--;setSync()}}
+function DEF_CFG(){return{cats:{in:[['i_sal','مرتب'],['i_bonus','حوافز وبونص'],['i_side','شغل إضافي'],['i_inv','عائد استثمار'],['i_gift','هدية'],['i_repay','استرداد سلفة'],['i_borrow','استلاف / قرض'],['i_other','دخل آخر']].map(([id,n])=>({id,n})),out:[['o_food','أكل وبقالة'],['o_trans','مواصلات وبنزين'],['o_bills','فواتير ونت'],['o_rent','إيجار وأقساط'],['o_health','صحة وعلاج'],['o_cloth','لبس'],['o_out','خروجات'],['o_edu','تعليم وكورسات'],['o_subs','اشتراكات'],['o_gift','هدايا ومناسبات'],['o_fix','صيانة'],['o_dep','إيداع / تحويل'],['o_other','مصروف آخر']].map(([id,n])=>({id,n}))},
+ buckets:[['home','مصروف البيت',2],['family','مصروف العيلة',8],['personal','مصروف شخصي',9],['save','ادخار',4],['invest','استثمار',3],['debt','سداد ديون',5],['lend','تسليف',1],['emerg','طوارئ',6]].map(([id,n,c])=>({id,n,c,ro:false})),
+ wallets:[{id:'cash',n:'كاش',open:0},{id:'bank',n:'البنك',open:0},{id:'ewallet',n:'محفظة إلكترونية',open:0}],plans:{},goals:[],rec:[],bills:[],holdings:[],settings:{email:ADMIN?'1':'',bonus:'1',nwAuto:'1',goldPrice:'',usdRate:''}}}
+function mergeCfg(s){const d=DEF_CFG();s=clone(s)||{};return{...d,...s,cats:{...d.cats,...(s.cats||{})},settings:{...d.settings,...(s.settings||{})}}}
+const mkTx=t=>Object.assign({id:uid(),w2:'',person:'',goal:'',note:'',rc:'',rec:'',bill:'',sg:'',cat:'',b:'',created:new Date().toISOString()},t);
+function sharePayload(g){
+ const have=Object.keys(months).sort().slice(-24),ms=(!g.months||g.months==='all')?have:String(g.months).split(',').filter(k=>months[k]||k===ymOf(today())),sec={};
+ String(g.s||'').split(',').forEach(k=>{if(k)sec[k]=1});const plans={};if(sec.budget)ms.forEach(k=>plans[k]=planFor(k));
+ return{perm:{s:sec,months:ms},cfg:{cats:cfg.cats,buckets:cfg.buckets,wallets:cfg.wallets.map(w=>({id:w.id,n:w.n,open:0})),plans,goals:sec.budget?cfg.goals:[]},
+  tx:ms.flatMap(k=>mTx(k)).map(t=>{const c={...t,rc:''};if(!g.notes)c.note='';return c})}}
+let shT=null;function scheduleShare(){if(PREVIEW||role!=='owner')return;clearTimeout(shT);shT=setTimeout(async()=>{for(const s of shares){const p=JSON.parse(JSON.stringify(sharePayload(s))),k=JSON.stringify(p);if(lastShare[s.token]===k)continue;try{await FB.F.setDoc(FB.F.doc(FB.db,'shares',s.token),{...s,uid:USER.uid,payload:p});lastShare[s.token]=k}catch(_){}}},2000)}
+async function outbox(title,body){if(PREVIEW||role!=='owner')return;try{await FB.F.addDoc(FB.F.collection(FB.db,'users',USER.uid,'outbox'),{title,body,created:new Date().toISOString()})}catch(_){}}
+const FSA={
+ async api_load(){const F=FB.F,db=FB.db;
+  if(SHARE){const s=await F.getDoc(F.doc(db,'shares',SHARE));if(!s.exists()||!s.data().on)return{role:'none'};const p=s.data().payload||{};return{role:'viewer',perm:p.perm,cfg:mergeCfg(p.cfg),tx:p.tx||[]}}
+  const u=VIEWAS||USER.uid,R=(...p)=>F.doc(db,'users',u,...p),C=(...p)=>F.collection(db,'users',u,...p);
+  const [c,ms,ps,ds,ss]=await Promise.all([F.getDoc(R('cfg','main')),F.getDocs(C('months')),F.getDocs(C('pending')),VIEWAS?null:F.getDocs(C('devices')),VIEWAS?null:F.getDocs(F.query(F.collection(db,'shares'),F.where('uid','==',u)))]);
+  let cf=c.exists()?c.data():null;if(!cf&&!VIEWAS){cf=JSON.parse(JSON.stringify(DEF_CFG()));await F.setDoc(R('cfg','main'),cf)}
+  const t=ms.docs.flatMap(d=>d.data().items||[]);if(!VIEWAS){savedM={};ms.docs.forEach(d=>savedM[d.id]=JSON.stringify(d.data().items||[]))}
+  const res={role:VIEWAS?'viewer':'owner',cfg:mergeCfg(cf),tx:t,pending:ps.docs.map(d=>({id:d.id,...d.data()})).filter(p=>p.status==='pending'),
+   devices:ds?ds.docs.map(d=>({id:d.id,...d.data()})):[],shares:ss?ss.docs.map(d=>{const x={...d.data()};delete x.payload;return x}):[],sheet:META.sheet,xlsx:META.xlsx};
+  if(VIEWAS){res.pending=[];res.perm={s:{log:1,budget:1,reports:1,debts:1},months:[...new Set(t.map(x=>ymOf(x.d)).concat(ymOf(today())))]}}
+  return res},
+ async api_saveTx(){const F=FB.F,b=F.writeBatch(FB.db),u=USER.uid,upd={};let n=0;
+  for(const k of new Set([...Object.keys(months),...Object.keys(savedM)])){const cur=(months[k]&&months[k].length)?JSON.stringify(months[k]):null;if(cur===(savedM[k]??null))continue;
+   const r=F.doc(FB.db,'users',u,'months',k);if(cur)b.set(r,{items:JSON.parse(cur)});else b.delete(r);upd[k]=cur;n++}
+  if(n){await b.commit();for(const k in upd){if(upd[k]===null)delete savedM[k];else savedM[k]=upd[k]}}scheduleShare();return{ok:true}},
+ async api_saveCfg(part,data){await FB.F.updateDoc(FB.F.doc(FB.db,'users',USER.uid,'cfg','main'),{[part]:JSON.parse(JSON.stringify(data??null))});scheduleShare();return{ok:true}},
+ async api_uploadReceipt(b64,mime,k){const id=uid();await FB.F.setDoc(FB.F.doc(FB.db,'users',USER.uid,'receipts',id),{d:'data:'+(mime||'image/jpeg')+';base64,'+b64,ym:k});return id},
+ async api_getReceipt(id){if(SHARE)throw new Error('الإيصالات مش متاحة في المشاركة');const s=await FB.F.getDoc(FB.F.doc(FB.db,'users',VIEWAS||USER.uid,'receipts',id));if(!s.exists())throw new Error('الإيصال مش موجود');return s.data().d},
+ async api_pending(id,ok){const p=pending.find(x=>x.id===id);if(!p)return'مش موجودة';let msg=ok?'اتسجلت ✓':'اتجاهلت';
+  if(p.type==='rec'){const r=cfg.rec.find(x=>x.id===p.ref);if(ok&&r){tx.push(mkTx({d:p.ym+'-'+pad(Math.min(r.day,dim(p.ym))),k:r.k,amt:p.amt,cat:r.cat,b:r.k==='out'?r.b:'',w:r.w||cfg.wallets[0]?.id||'',note:r.n,rec:r.id}));msg='اتسجلت «'+r.n+'» ✓'}if(r){r.last=p.ym;await FSA.api_saveCfg('rec',cfg.rec)}}
+  else if(p.type==='bonus'&&ok){tx.push(mkTx({d:today(),k:'out',amt:p.amt,cat:'o_dep',b:'save',w:cfg.wallets[0]?.id||'',note:'فايض ميزانية '+ymLabel(p.ym)}));msg='اتحول '+fmt(p.amt)+' ج.م للادخار ✓'}
+  regroup();await FSA.api_saveTx();await FB.F.updateDoc(FB.F.doc(FB.db,'users',USER.uid,'pending',id),{status:ok?'ok':'no'});return msg},
+ async api_payBill(id){const b=cfg.bills.find(x=>x.id===id),cur=ymOf(today());if(!b)return'الفاتورة مش موجودة';if(b.paid===cur)return'متسجلة قبل كده ✓';
+  tx.push(mkTx({d:today(),k:'out',amt:b.amt,cat:b.cat||'o_bills',b:b.b||'',w:b.w||cfg.wallets[0]?.id||'',note:b.n,bill:b.id}));b.paid=cur;regroup();await FSA.api_saveTx();await FSA.api_saveCfg('bills',cfg.bills);return'اتسجلت فاتورة '+b.n+' ✓'},
+ async api_shareCreate(n){const s={token:uid()+uid()+uid(),n,s:'budget,log,reports',months:'all',notes:false,on:true,uid:USER.uid};const p=JSON.parse(JSON.stringify(sharePayload(s)));await FB.F.setDoc(FB.F.doc(FB.db,'shares',s.token),{...s,payload:p});lastShare[s.token]=JSON.stringify(p);return s},
+ async api_shareUpdate(s){const p=JSON.parse(JSON.stringify(sharePayload(s)));await FB.F.setDoc(FB.F.doc(FB.db,'shares',s.token),{...s,uid:USER.uid,payload:p});lastShare[s.token]=JSON.stringify(p);return{ok:true}},
+ async api_shareDelete(t){await FB.F.deleteDoc(FB.F.doc(FB.db,'shares',t));return{ok:true}},
+ async api_registerDevice(t,lab){const id=t.slice(-80).replace(/[^\w-]/g,'_');await FB.F.setDoc(FB.F.doc(FB.db,'users',USER.uid,'devices',id),{token:t,label:lab,added:today()});const ds=await FB.F.getDocs(FB.F.collection(FB.db,'users',USER.uid,'devices'));return ds.docs.map(d=>({id:d.id,...d.data()}))},
+ async api_removeDevice(t){const d=devices.find(x=>x.token===t);if(d)await FB.F.deleteDoc(FB.F.doc(FB.db,'users',USER.uid,'devices',d.id));return devices.filter(x=>x.token!==t)},
+ async api_users(){const s=await FB.F.getDocs(FB.F.collection(FB.db,'users'));return s.docs.map(d=>({uid:d.id,...d.data()}))},
+ async api_setStatus(u,st){await FB.F.updateDoc(FB.F.doc(FB.db,'users',u),{status:st});return{ok:true}},
+};
 
 /* preview mode before config.js is filled (for trying the interface only) */
 const MOCK={
  _s(){try{return JSON.parse(localStorage.getItem('masrofy-gas')||'null')}catch(e){return null}},
  _w(d){try{localStorage.setItem('masrofy-gas',JSON.stringify(d))}catch(e){}},
- api_load(){let d=this._s();if(!d){d={cfg:{cats:{in:[['i_sal','مرتب'],['i_bonus','حوافز وبونص'],['i_side','شغل إضافي'],['i_inv','عائد استثمار'],['i_gift','هدية'],['i_repay','استرداد سلفة'],['i_borrow','استلاف / قرض'],['i_other','دخل آخر']].map(([id,n])=>({id,n})),out:[['o_food','أكل وبقالة'],['o_trans','مواصلات وبنزين'],['o_bills','فواتير ونت'],['o_rent','إيجار وأقساط'],['o_health','صحة وعلاج'],['o_cloth','لبس'],['o_out','خروجات'],['o_edu','تعليم وكورسات'],['o_subs','اشتراكات'],['o_gift','هدايا ومناسبات'],['o_fix','صيانة'],['o_dep','إيداع / تحويل'],['o_other','مصروف آخر']].map(([id,n])=>({id,n}))},
-  buckets:[['home','مصروف البيت',2],['wife','مصروف زوجتي',8],['personal','مصروف شخصي',9],['save','ادخار',4],['invest','استثمار',3],['debt','سداد ديون',5],['lend','تسليف',1],['emerg','طوارئ',6]].map(([id,n,c])=>({id,n,c,ro:false})),
-  wallets:[{id:'cash',n:'كاش',open:0},{id:'bank',n:'البنك',open:0},{id:'ewallet',n:'محفظة إلكترونية',open:0}],plans:{},goals:[],rec:[],bills:[],holdings:[],settings:{hour:'9',email:'1',bonus:'1',nwAuto:'1'}},tx:[],shares:[]};this._w(d)}
-  return{role:'owner',cfg:d.cfg,tx:d.tx,pending:[],shares:d.shares,devices:[],sheet:'#',xlsx:'#'}},
- api_saveTx(list,del){const d=this._s(),drop=new Set([...(del||[]),...list.map(t=>t.id)]);d.tx=d.tx.filter(t=>!drop.has(t.id)).concat(list);this._w(d);return{ok:true}},
+ api_load(){let d=this._s();if(!d){d={cfg:DEF_CFG(),tx:[],shares:[]};this._w(d)}
+  return{role:'owner',cfg:mergeCfg(d.cfg),tx:d.tx,pending:[],shares:d.shares,devices:[],sheet:'#',xlsx:'#'}},
+ api_saveTx(){const d=this._s();d.tx=tx;this._w(d);return{ok:true}},
+ api_pending(){return'تمام'},api_payBill(id){const b=cfg.bills.find(x=>x.id===id);if(!b)return'';tx.push(mkTx({d:today(),k:'out',amt:b.amt,cat:b.cat,b:b.b,w:cfg.wallets[0]?.id,note:b.n,bill:b.id}));b.paid=ymOf(today());const d=this._s();d.tx=tx;d.cfg.bills=cfg.bills;this._w(d);return'اتسجلت ✓'},
  api_saveCfg(part,data){const d=this._s();d.cfg[part]=data;this._w(d);return{ok:true}},
  api_uploadReceipt(){return 'preview-'+uid()},
  api_shareCreate(n){const d=this._s(),s={token:uid()+uid(),n,s:'budget,log,reports',months:'all',notes:false,on:true};d.shares.push(s);this._w(d);return s},
@@ -333,16 +399,18 @@ async function viewRc(id){try{if(!rcCache[id]){toast('بيحمّل الإيصا�
 
 /* ---------- saving ---------- */
 function saveTx(list,del){regroup();render();return call('api_saveTx',list,del||[]).catch(()=>reload())}
+function viewAs(u,name){VIEWAS=u;VIEWNAME=name||'';tab='log';$('#loading').hidden=false;reload().then(()=>scrollTo({top:0}))}
 const cT={};
 function saveCfg(part){render();clearTimeout(cT[part]);cT[part]=setTimeout(()=>call('api_saveCfg',part,clone(cfg[part])).catch(()=>{}),500)}
 function reload(){return call('api_load').then(apply).catch(()=>{})}
 function apply(r){
  $('#loading').hidden=true;role=r.role;
- if(role==='none'||role==='stranger'){$('#strangerMail').textContent=r.email||'';render();return}
+ if(role==='none'){render();return}
  cfg=r.cfg;tx=(r.tx||[]).map(t=>({...t,amt:+t.amt}));pending=r.pending||[];shares=r.shares||[];devices=r.devices||[];links={sheet:r.sheet,xlsx:r.xlsx};perm=r.perm||null;
  regroup();
  if(role==='viewer'){const v=viewerMonths();if(!v.includes(ym))ym=v.includes(ymOf(today()))?ymOf(today()):(v.at(-1)||ym)}
  if(!E.w||!cfg.wallets.some(w=>w.id===E.w))E.w=cfg.wallets[0]?.id||'';
+ if(role==='owner'&&!VIEWAS&&!PREVIEW&&cfg.settings&&cfg.settings.lang!==LANG){cfg.settings.lang=LANG;call('api_saveCfg','settings',clone(cfg.settings)).catch(()=>{})}
  render();
 }
 
@@ -424,6 +492,7 @@ function saveEntry(){
  const delIds=old.map(t=>t.id).filter(id=>!list.some(t=>t.id===id)),wasEdit=!!E.editing;
  tx=tx.filter(t=>!old.includes(t)).concat(list);resetEntry();ym=k;saveTx(list,delIds);
  let msg='';for(const b in before){msg=budgetMsg(k,b,before[b]);if(msg)break}
+ if(msg)outbox(T('تنبيه ميزانية'),T(msg.replace('تنبيه: ','')));
  toast(msg||(wasEdit?'اتعدلت ✓':'اتسجلت ✓'));
 }
 function openEdit(id){const t=tx.find(x=>x.id===id);if(!t||!editable())return;const grp=t.sg?tx.filter(x=>x.sg===t.sg):[t],tot=grp.reduce((a,x)=>a+x.amt,0);
@@ -435,7 +504,7 @@ function delEntry(){const t=tx.find(x=>x.id===E.editing);if(!t)return;const grp=
 /* ---------- receipts ---------- */
 function shrink(file,max,q){return new Promise((res,rej)=>{const u=URL.createObjectURL(file),im=new Image();im.onload=()=>{const s=Math.min(1,max/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=Math.round(im.width*s);c.height=Math.round(im.height*s);c.getContext('2d').drawImage(im,0,0,c.width,c.height);URL.revokeObjectURL(u);res(c.toDataURL('image/jpeg',q))};im.onerror=()=>{URL.revokeObjectURL(u);rej()};im.src=u})}
 async function attachRc(f){if(!f)return;if(!f.type.startsWith('image/')){toast('اختار صورة');return}
- try{toast('بيرفع الصورة على الدرايف…');const url=await shrink(f,1600,.8);const id=await call('api_uploadReceipt',url.split(',')[1],'image/jpeg',ymOf(E.d));rcCache[id]=url;E.rc=id;renderAdd();toast('اترفعت الصورة، دوس حفظ')}catch(e){}}
+ try{toast('بيرفع الصورة…');const url=await shrink(f,1000,.55);const id=await call('api_uploadReceipt',url.split(',')[1],'image/jpeg',ymOf(E.d));rcCache[id]=url;E.rc=id;renderAdd();toast('اترفعت الصورة، دوس حفظ')}catch(e){}}
 
 /* ---------- budget alerts ---------- */
 function bucketPct(k,b){const a=avail(k,b);if(!a)return null;return spent(k,b)/a*100}
@@ -455,16 +524,17 @@ function renderAlerts(){
 /* ---------- views ---------- */
 function viewerMonths(){return(perm?.months||[]).slice().sort()}
 function renderTabs(){
- let list=TABS;if(role==='viewer'){const s=perm?.s||{};list=TABS.filter(([k])=>s[k])}if(!['owner','viewer'].includes(role))list=[];
- if(!list.some(([k])=>k===tab))tab=list[0]?.[0]||({none:'none',signin:'signin',stranger:'stranger'}[role]||'');
- if(['none','signin','stranger'].includes(role)){tab=role;$('#loading').hidden=true}
+ let list=TABS.filter(([k])=>k!=='admin'||(ADMIN&&role==='owner'));if(role==='viewer'){const s=perm?.s||{};list=TABS.filter(([k])=>s[k])}if(!['owner','viewer'].includes(role))list=[];
+ if(!list.some(([k])=>k===tab))tab=list[0]?.[0]||'';
+ if(['none','signin','waiting','blocked'].includes(role)){tab=role;$('#loading').hidden=true}
+ $('#viewBanner').hidden=!VIEWAS;if(VIEWAS)$('#vbName').textContent=VIEWNAME;
  $('#tabs').innerHTML=list.map(([k,n])=>`<button role="tab" data-tab="${k}" aria-selected="${k===tab}">${n}</button>`).join('');
  document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('on',p.id==='p-'+tab));
 }
 function renderMonth(){
  $('#mLab').textContent=repMode==='y'&&tab==='reports'?ym.slice(0,4):ymLabel(ym);
  if(role==='viewer'){const v=viewerMonths(),i=v.indexOf(ym);$('#mPrev').disabled=i<=0;$('#mNext').disabled=i<0||i>=v.length-1}else{$('#mPrev').disabled=$('#mNext').disabled=role!=='owner'}
- if(role==='viewer')$('#mode').textContent='عرض فقط';else if(role==='owner')setSync();else if(role!=='loading')$('#mode').textContent='';
+ if(role==='viewer')$('#mode').textContent=VIEWAS?'عرض حساب مستخدم':'عرض فقط';else if(role==='owner')setSync();else if(role!=='loading')$('#mode').textContent='';
 }
 function step(k){const n=repMode==='y'&&tab==='reports'?12:1;if(role==='viewer'){const v=viewerMonths(),i=v.indexOf(ym);if(v[i+k])ym=v[i+k]}else ym=shiftYm(ym,k*n);render()}
 $('#mPrev').onclick=()=>step(-1);$('#mNext').onclick=()=>step(1);
@@ -478,7 +548,7 @@ function renderLog(){
  l.sort((a,b)=>b.d.localeCompare(a.d)||String(b.created).localeCompare(String(a.created)));
  if(!l.length){$('#logList').innerHTML=`<div class="empty">${mTx(ym).length?'مفيش نتايج للفلتر ده':'مفيش معاملات في '+esc(ymLabel(ym))+' لسه'}</div>`;return}
  const g={};for(const t of l)(g[t.d]=g[t.d]||[]).push(t);const ed=editable();
- $('#logList').innerHTML=Object.entries(g).map(([d,ts])=>{const {i,o}=totals(ts);const dn=new Date(d+'T12:00').toLocaleDateString('ar-EG',{weekday:'long',day:'numeric',month:'long'});
+ $('#logList').innerHTML=Object.entries(g).map(([d,ts])=>{const {i,o}=totals(ts);const dn=new Date(d+'T12:00').toLocaleDateString(LANG==='en'?'en-GB':'ar-EG',{weekday:'long',day:'numeric',month:'long'});
   return`<div><div class="dayh"><span>${esc(dn)}</span><span>${i?`<span class="in amt">+${fmt(i)}</span> `:''}${o?`<span class="out amt">−${fmt(o)}</span>`:''}</span></div>`+ts.map(t=>{const b=bOf(t.b),attr=ed?`data-act="edit" data-id="${esc(t.id)}" tabindex="0"`:'';
   if(t.k==='tr')return`<div class="tx${ed?' ed':''}" ${attr}><span class="dot" style="background:var(--gold)"></span><div class="t">تحويل من ${esc(wOf(t.w))} إلى ${esc(wOf(t.w2))}<small>${esc(t.note||'')}</small></div><span class="amt">${fmt(t.amt)}</span></div>`;
   return`<div class="tx${ed?' ed':''}" ${attr}><span class="dot" style="background:${t.k==='in'?'var(--inc)':COL[(b?.c||0)%COL.length]}"></span><div class="t">${esc(catOf(t.k,t.cat))}${b?`<span class="tag">${esc(b.n)}</span>`:''}${t.sg?'<span class="tag">مقسّم</span>':''}${t.rec?'<span class="tag">متكرر</span>':''}${t.bill?'<span class="tag">فاتورة</span>':''}${t.rc?`<button class="tag" style="cursor:zoom-in" data-act="view" data-id="${esc(t.rc)}">إيصال</button>`:''}<small>${esc([wOf(t.w),t.person,t.note].filter(Boolean).join(' · '))}</small></div><span class="amt ${t.k}">${t.k==='in'?'+':'−'}${fmt(t.amt)}</span></div>`}).join('')+'</div>'}).join('');
@@ -522,9 +592,9 @@ const sT={};function updShare(s){renderShare();clearTimeout(sT[s.token]);sT[s.to
 
 /* charts */
 function bars(svg,groups,labels,current){const W=svg.clientWidth,H=svg.clientHeight;if(!W)return;const n=groups.length,mx=Math.max(1,...groups.flat()),gw=(W-16)/Math.max(n,1),ch=H-40,k=groups[0]?.length||1;let h=`<line x1="8" x2="${W-8}" y1="${H-24}" y2="${H-24}" style="stroke:var(--line)"/>`;
- groups.forEach((g,j)=>{const x=W-8-(j+1)*gw,bw=Math.min(gw*.7/k,26);g.forEach((v,q)=>{if(!v)return;const bh=v/mx*ch,bx=x+gw/2+(k===1?-bw/2:q===0?2:-bw-2);h+=`<rect x="${bx}" y="${H-24-bh}" width="${bw}" height="${bh}" rx="2" style="fill:${k===1||q===1?'var(--exp)':'var(--inc)'}"><title>${esc(fmt(v))}</title></rect>`});
+ groups.forEach((g,j)=>{const x=LANG==='en'?8+j*gw:W-8-(j+1)*gw,bw=Math.min(gw*.7/k,26);g.forEach((v,q)=>{if(!v)return;const bh=v/mx*ch,bx=x+gw/2+(k===1?-bw/2:q===0?2:-bw-2);h+=`<rect x="${bx}" y="${H-24-bh}" width="${bw}" height="${bh}" rx="2" style="fill:${k===1||q===1?'var(--exp)':'var(--inc)'}"><title>${esc(fmt(v))}</title></rect>`});
   if(labels[j])h+=`<text x="${x+gw/2}" y="${H-6}" style="fill:${j===current?'var(--ink)':'var(--mut)'};font-weight:${j===current?600:400}" font-size="11" text-anchor="middle">${esc(labels[j])}</text>`});
- h+=`<text x="${W-8}" y="14" direction="rtl" text-anchor="start" style="fill:var(--mut)" font-size="12">الأعلى: ${esc(fmt(mx))}</text>`;svg.innerHTML=h}
+ h+=`<text x="${LANG==='en'?8:W-8}" y="14" direction="${LANG==='en'?'ltr':'rtl'}" text-anchor="start" style="fill:var(--mut)" font-size="12">الأعلى: ${esc(fmt(mx))}</text>`;svg.innerHTML=h}
 function drawCharts(){
  if(tab!=='reports')return;const W=$('#svTrend').clientWidth,narrow=W<520;
  if(repMode==='m'){const n=dim(ym),v=Array.from({length:n},(_,d)=>[mTx(ym).reduce((a,t)=>a+(t.k==='out'&&+t.d.slice(8)===d+1?t.amt:0),0)]);const step=$('#svDaily').clientWidth<520?10:5;
@@ -588,8 +658,10 @@ function renderSettings(){
  const cur=ymOf(today());
  $('#sBills').innerHTML=(cfg.bills||[]).map(bl=>`<div class="brow"><div class="h"><b>${esc(bl.n)}</b><span class="amt">${fmt(bl.amt)}</span><span class="tag">يوم ${bl.day}</span><span class="tag">${bl.paid===cur?'اتدفعت الشهر ده':'لسه'}</span><button class="chip" data-act="delBill" data-id="${esc(bl.id)}">حذف</button></div><div class="note">بيفكّرك قبلها بـ ${+bl.pre||0} يوم</div></div>`).join('');
  renderPush();renderShare();
- $('#sheetBox').innerHTML=`<p class="note">كل بياناتك في شيت جوجل على الدرايف بتاعك. صفحات «السجل» و«ملخص شهري» و«البنود» بتتحدث لوحدها كل دقيقة، وتقدر تربطها بـ Power BI أو Looker Studio.</p>
-  <div class="acts"><a class="btn sm" href="${esc(links.xlsx||'#')}" target="_blank" rel="noopener">تنزيل ملف إكسيل</a><a class="btn sm ghost" href="${esc(links.sheet||'#')}" target="_blank" rel="noopener">افتح الشيت</a></div>
+ $('#themeSeg').querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.th===getTheme()));
+ $('#langSeg').querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.lg===LANG));
+ $('#sheetBox').innerHTML=(ADMIN?`<p class="note">نسخة من بيانات كل المستخدمين بتتحدث في الشيت كل يوم الصبح، في صفحة «كل المستخدمين»، وتقدر تربطها بـ Power BI.</p>
+  <div class="acts"><a class="btn sm" href="${esc(links.xlsx||'#')}" target="_blank" rel="noopener">تنزيل ملف إكسيل</a><a class="btn sm ghost" href="${esc(links.sheet||'#')}" target="_blank" rel="noopener">افتح الشيت</a><button class="btn sm ghost" data-act="migrate">استيراد بياناتي من النسخة القديمة</button></div>`:'')+`
   <label class="ck" style="margin-top:12px"><input type="checkbox" data-setk="email"${S('email')?' checked':''}>ابعتلي ملخص الشهر على الإيميل أول كل شهر</label>
   <label class="ck"><input type="checkbox" data-setk="bonus"${S('bonus')?' checked':''}>اقترح عليّ أحوّل فايض الميزانية للادخار</label>
   <div class="acts" style="margin-top:8px"><button class="btn sm ghost" data-act="sendSummary">ابعت ملخص الشهر اللي فات دلوقتي</button>${USER?`<button class="btn sm del" data-act="logout">تسجيل خروج</button>`:''}</div>`;
@@ -599,9 +671,9 @@ const myPushToken=()=>{try{return localStorage.getItem('masrofy-push')||''}catch
 function renderPush(){
  const b=$('#pushBox');
  if(PREVIEW){b.innerHTML='<p class="note">الإشعارات بتشتغل بعد ما تملا ملف config.js وترفع التطبيق على GitHub Pages.</p>';return}
- if(!S('pushReady')){b.innerHTML='<p class="note">الإشعارات محتاجة مفتاح الخدمة (SA_JSON) في إعدادات Apps Script، الخطوة ٤ في الدليل.</p>';return}
+ if(!CONF.vapidKey){b.innerHTML='<p class="note">الإشعارات مش متظبطة لسه.</p>';return}
  const supported='Notification' in window&&'serviceWorker' in navigator,perm=supported?Notification.permission:'unsupported',mine=devices.some(d=>d.token===myPushToken());
- const hourSel=`<label class="f" style="margin-top:12px"><span>ساعة التذكير اليومي</span><select class="inp" data-setk="hour" style="width:auto">${Array.from({length:24},(_,h)=>`<option value="${h}"${+S('hour')===h?' selected':''}>${h===0?'12 بالليل':h<12?h+' الصبح':h===12?'12 الضهر':(h-12)+(h<17?' العصر':' بالليل')}</option>`).join('')}</select></label>`;
+ const hourSel='<p class="note" style="margin-top:10px">التذكير اليومي بيوصل الساعة ٩ الصبح.</p>';
  b.innerHTML=(!supported?'<p class="note">المتصفح ده مش بيدعم الإشعارات. على أندرويد استخدم Chrome، وعلى ويندوز Chrome أو Edge.</p>':
   perm==='denied'?'<p class="note out">الإشعارات مقفولة للموقع ده من المتصفح. افتحها من القفل اللي جنب العنوان ← Notifications ← Allow، وبعدين دوس تفعيل.</p><button class="btn sm" data-act="pushOn">تفعيل</button>':
   mine&&perm==='granted'?'<p><span class="in">●</span> الإشعارات شغالة على الجهاز ده.</p>':'<p class="note">فعّلها على كل جهاز عايز يوصله إشعار (الموبايل واللاب). هيوصلك: المتكرر للموافقة، والفواتير قبل ميعادها، وتنبيه الـ٨٠٪، والملخص الشهري، وكل إشعار فيه أزرار تسجّل منها على طول.</p><button class="btn sm" data-act="pushOn">فعّل الإشعارات على الجهاز ده</button>')+
@@ -616,7 +688,7 @@ async function pushOn(){
   const t=await M.getToken(m,{vapidKey:CONF.vapidKey,serviceWorkerRegistration:reg});if(!t)throw new Error('مقدرتش أجيب توكن الجهاز');
   devices=await call('api_registerDevice',t,deviceLabel());try{localStorage.setItem('masrofy-push',t)}catch(_){}renderPush();toast('الإشعارات اتفعّلت على الجهاز ده ✓')}
  catch(e){toast(e.message||'مقدرتش أفعّل الإشعارات')}}
-async function pushRefresh(){if(PREVIEW||role!=='owner'||!S('pushReady')||!('Notification' in window)||Notification.permission!=='granted'||!myPushToken())return;
+async function pushRefresh(){if(PREVIEW||role!=='owner'||!CONF.vapidKey||!('Notification' in window)||Notification.permission!=='granted'||!myPushToken())return;
  try{const {M,m}=await messaging(),reg=await navigator.serviceWorker.ready,t=await M.getToken(m,{vapidKey:CONF.vapidKey,serviceWorkerRegistration:reg});
   if(t&&(t!==myPushToken()||!devices.some(d=>d.token===t))){devices=await call('api_registerDevice',t,deviceLabel());try{localStorage.setItem('masrofy-push',t)}catch(_){}}}catch(_){}}
 function renderShare(){
@@ -630,11 +702,21 @@ function renderShare(){
   <label class="f" style="margin:8px 0 0"><span>الشهور</span><select class="inp" data-sh="${esc(s.token)}" data-f="mm"><option value="all"${cm?' selected':''}>كل الشهور (آخر ٢٤ شهر)</option><option value="some"${cm?'':' selected'}>شهور محددة</option></select></label>
   ${cm?'':`<div class="chips" style="margin-top:8px">${have.map(k=>`<button class="chip${ms.includes(k)?' on':''}" data-act="shMonth" data-id="${esc(s.token)}" data-m="${k}">${ymLabel(k)}</button>`).join('')}</div>`}</div>`}).join('')}`;
 }
+let USERS=null;
+async function renderAdmin(){if(!ADMIN)return;if(!USERS){try{USERS=await call('api_users')}catch(_){USERS=[]}}
+ const q=($('#uq').value||'').trim().toLowerCase(),f=$('#uf').value,ST={pending:'مستني موافقة',active:'مفعّل',blocked:'متوقف'};
+ const l=USERS.filter(u=>(!f||u.status===f)&&(!q||(u.email+' '+(u.name||'')).toLowerCase().includes(q))).sort((a,b)=>(a.status==='pending'?0:1)-(b.status==='pending'?0:1)||String(b.created).localeCompare(String(a.created)));
+ const cnt=s=>USERS.filter(u=>u.status===s).length;
+ $('#uList').innerHTML=`<p class="note">مفعّلين ${cnt('active')} · مستنيين ${cnt('pending')} · متوقفين ${cnt('blocked')}</p>`+(l.length?l.map(u=>`<div class="brow"><div class="h"><b>${esc(u.name||u.email)}<small class="mut" style="display:block;direction:ltr;text-align:right">${esc(u.email)}</small></b><span class="tag">${ST[u.status]||esc(u.status)}</span>
+  ${u.status!=='active'?`<button class="chip" data-act="uSet" data-id="${esc(u.uid)}" data-st="active">${u.status==='pending'?'موافقة':'تفعيل'}</button>`:''}${u.status!=='blocked'&&u.uid!==USER?.uid?`<button class="chip" data-act="uSet" data-id="${esc(u.uid)}" data-st="blocked">إيقاف</button>`:''}${u.status==='active'&&u.uid!==USER?.uid?`<button class="chip" data-act="uView" data-id="${esc(u.uid)}" data-n="${esc(u.name||u.email)}">عرض بياناته</button>`:''}</div></div>`).join(''):'<div class="empty">مفيش مستخدمين</div>')}
+document.addEventListener('input',e=>{if(e.target.id==='uq')renderAdmin()});document.addEventListener('change',e=>{if(e.target.id==='uf')renderAdmin()});
 function render(){
  {const hr=new Date().getHours();$('#hello').textContent=hr<12?'صباح الخير':hr<18?'طاب يومك':'مساء الخير'}
  renderTabs();renderMonth();
+ {const a=$('#acct');a.hidden=!(USER&&role==='owner');if(USER)a.textContent=USER.email||''}
  const ok=role==='owner'||role==='viewer';$('#sum').hidden=!ok;if(!ok){$('#alerts').hidden=true;return}
  renderSum();renderAlerts();
+ if(tab==='admin')renderAdmin();
  if(tab==='add')renderAdd();else if(tab==='log')renderLog();else if(tab==='budget')renderBudget();else if(tab==='reports')renderReports();else if(tab==='debts')renderDebts();else if(tab==='settings')renderSettings();
 }
 $('#tabs').addEventListener('click',e=>{const b=e.target.closest('[data-tab]');if(b){tab=b.dataset.tab;render()}});
@@ -645,7 +727,10 @@ document.addEventListener('click',async e=>{const a=e.target.closest('[data-act]
  if(act==='view'){e.stopPropagation();viewRc(id);return}
  if(act==='closeModal'){$('#modal').hidden=true;return}
  if(act==='edit'){openEdit(id);return}
+ if(act==='viewBack'){VIEWAS=null;tab='admin';$('#loading').hidden=false;reload();return}
+ if(act==='recheck'){location.reload();return}
  if(act==='signin'){signin();return}
+ if(act==='lang'){setLang(LANG==='en'?'ar':'en',true);return}
  if(act==='logout'){if(FB){await FB.A.signOut(FB.auth)}location.href=APP_URL;return}
  if(!editable())return;
  if(act==='cat'){E.cat=id;renderAdd()}
@@ -689,6 +774,11 @@ document.addEventListener('click',async e=>{const a=e.target.closest('[data-act]
  else if(act==='pushOn')pushOn();
  else if(act==='pushTest'){call('api_testPush').then(n=>toast('اتبعت لـ '+n+' جهاز')).catch(()=>{})}
  else if(act==='devDel'){devices=await call('api_removeDevice',id).catch(()=>devices);if(id===myPushToken())try{localStorage.removeItem('masrofy-push')}catch(_){}renderPush()}
+ else if(act==='uSet'){await call('api_setStatus',id,a.dataset.st).catch(()=>{});const u=USERS.find(x=>x.uid===id);if(u)u.status=a.dataset.st;renderAdmin();toast(a.dataset.st==='active'?'اتفعّل ✓':'اتوقف')}
+ else if(act==='uView')viewAs(id,a.dataset.n);
+ else if(act==='migrate'){if(a.dataset.arm!=='1'){a.dataset.arm='1';a.textContent='اضغط تاني للتأكيد — هيستبدل بياناتك الحالية';setTimeout(()=>{a.dataset.arm='';a.textContent='استيراد بياناتي من النسخة القديمة'},5000);return}
+  const r=await call('api_migrate').catch(()=>null);if(!r)return;cfg=mergeCfg(r.cfg);tx=(r.tx||[]).map(t=>mkTx({...t,amt:+t.amt}));regroup();
+  await FB.F.setDoc(FB.F.doc(FB.db,'users',USER.uid,'cfg','main'),JSON.parse(JSON.stringify(cfg)));await call('api_saveTx');toast('اتنقلت '+tx.length+' معاملة ✓');reload()}
  else if(act==='sendSummary'){call('api_sendSummary').then(()=>toast('اتبعت الملخص على إيميلك')).catch(()=>{})}
 });
 
@@ -697,16 +787,44 @@ async function signin(){try{const pr=new FB.A.GoogleAuthProvider();pr.setCustomP
  catch(e){if(/popup-blocked|operation-not-supported/.test(e.code||''))FB.A.signInWithRedirect(FB.auth,new FB.A.GoogleAuthProvider());else if(!/popup-closed|cancelled/.test(e.code||''))toast('مقدرتش أسجّل دخول: '+(e.code||e.message))}}
 addEventListener('beforeinstallprompt',e=>{e.preventDefault();INSTALL=e;$('#installBtn').hidden=false});
 addEventListener('appinstalled',()=>{$('#installBtn').hidden=true;toast('اتثبّت ✓ هتلاقيه في قايمة التطبيقات')});
+$('#acct').onclick=()=>{tab='settings';render();scrollTo({top:0,behavior:'smooth'})};
+const TH={auto:['تلقائي حسب الجهاز','<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="8"/><path d="M12 4a8 8 0 0 1 0 16z" fill="currentColor"/></svg>'],light:['نهاري','<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>'],dark:['ليلي','<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg>']};
+function getTheme(){try{return localStorage.getItem('masrofy-theme')||'auto'}catch(_){return'auto'}}
+function setTheme(t){try{t==='auto'?localStorage.removeItem('masrofy-theme'):localStorage.setItem('masrofy-theme',t)}catch(_){}if(t==='auto')delete document.documentElement.dataset.theme;else document.documentElement.dataset.theme=t;
+ const dark=t==='dark'||(t==='auto'&&matchMedia('(prefers-color-scheme: dark)').matches);document.querySelector('meta[name=theme-color]').content=dark?'#0c0f22':'#1b2250';
+ $('#themeBtn').innerHTML=TH[t][1];$('#themeBtn').title='المظهر: '+TH[t][0];if(tab==='reports')requestAnimationFrame(drawCharts);if(tab==='settings')renderSettings()}
+$('#themeSeg').addEventListener('click',e=>{const b=e.target.closest('[data-th]');if(b)setTheme(b.dataset.th)});
+function setLang(l,save){LANG=l==='en'?'en':'ar';try{localStorage.setItem('masrofy-lang',LANG)}catch(_){}
+ const H=document.documentElement;H.lang=LANG;H.dir=LANG==='en'?'ltr':'rtl';MN=LANG==='en'?MN_EN:MN_AR;
+ $('#mPrev').textContent=LANG==='en'?'‹':'›';$('#mNext').textContent=LANG==='en'?'›':'‹';$('#langBtn').textContent=LANG==='en'?'ع':'EN';
+ render();trNode(document.body);requestAnimationFrame(drawCharts);
+ if(save&&role==='owner'&&cfg.settings&&cfg.settings.lang!==LANG){cfg.settings.lang=LANG;saveCfg('settings')}}
+$('#langBtn').onclick=()=>setLang(LANG==='en'?'ar':'en',true);
+$('#langSeg').addEventListener('click',e=>{const b=e.target.closest('[data-lg]');if(b)setLang(b.dataset.lg,true)});
+$('#themeBtn').onclick=()=>{const o=['auto','light','dark'],t=o[(o.indexOf(getTheme())+1)%3];setTheme(t);toast('المظهر: '+TH[t][0])};
+setTheme(getTheme());
 $('#installBtn').onclick=async()=>{if(!INSTALL)return;INSTALL.prompt();await INSTALL.userChoice;INSTALL=null;$('#installBtn').hidden=true};
 if('serviceWorker' in navigator&&location.protocol==='https:'){navigator.serviceWorker.register('sw.js');navigator.serviceWorker.addEventListener('message',e=>{if(e.data==='refresh')reload()})}
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&(role==='owner'||role==='viewer')&&!busy)reload()});
-render();
+render();setLang(LANG);
 (async()=>{
  SHARE=new URLSearchParams(location.search).get('t')||'';
- if(PREVIEW||SHARE){await reload();return}
- try{const [Ap,A]=await Promise.all([import(FBU+'firebase-app.js'),import(FBU+'firebase-auth.js')]);const app=Ap.initializeApp(CONF.firebase);FB={app,A,auth:A.getAuth(app)};
-  A.onAuthStateChanged(FB.auth,async u=>{USER=u;if(u){await reload();pushRefresh()}else{role='signin';render()}})}
- catch(e){$('#loading').textContent='مقدرتش أحمّل التطبيق. اتأكد من الإنترنت ومن config.js';}
+ if(PREVIEW){await reload();return}
+ try{const [Ap,A,F]=await Promise.all([import(FBU+'firebase-app.js'),import(FBU+'firebase-auth.js'),import(FBU+'firebase-firestore.js')]);
+  const app=Ap.initializeApp(CONF.firebase);FB={app,A,F,auth:A.getAuth(app),db:F.getFirestore(app)};
+  if(SHARE){await reload();return}
+  A.onAuthStateChanged(FB.auth,async u=>{USER=u;VIEWAS=null;
+   if(!u){role='signin';render();return}
+   try{const m=await F.getDoc(F.doc(FB.db,'meta','admin'));META=m.exists()?m.data():{};
+    ADMIN=!!(META.email&&u.email&&META.email.toLowerCase()===u.email.toLowerCase());
+    const r=F.doc(FB.db,'users',u.uid);let s=await F.getDoc(r);
+    if(!s.exists()){await F.setDoc(r,{email:u.email,name:u.displayName||'',status:ADMIN?'active':'pending',created:new Date().toISOString()});s=await F.getDoc(r)}
+    ME=s.data();if(ADMIN&&ME.status!=='active'){await F.updateDoc(r,{status:'active'});ME.status='active'}
+    if(ME.status==='pending'){role='waiting';render();return}
+    if(ME.status==='blocked'){role='blocked';render();return}
+    await reload();pushRefresh()}
+   catch(e){$('#loading').hidden=false;$('#loading').textContent='مقدرتش أحمّل حسابك: '+errMsg(e)}})}
+ catch(e){$('#loading').textContent='مقدرتش أحمّل التطبيق. اتأكد من الإنترنت.'}
 })();
 }
 </script>
