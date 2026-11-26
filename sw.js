@@ -2,8 +2,8 @@
 importScripts('config.js');
 importScripts('https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js', 'https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging-compat.js');
 const C = self.MASROFY_CONFIG || {};
-const CACHE = 'masrofy-v1';
-const SHELL = ['./', './index.html', './config.js', './manifest.webmanifest', './icons/icon-192.png', './icons/icon-512.png', './icons/badge-96.png'];
+const CACHE = 'masrofy-v2';
+const SHELL = ['./', './index.html', './config.js', './manifest.webmanifest', './icon-192.png', './icon-512.png', './badge-96.png'];
 
 self.addEventListener('install', e => { e.waitUntil(caches.open(CACHE).then(c => c.addAll(SHELL)).then(() => self.skipWaiting())); });
 self.addEventListener('activate', e => { e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k !== CACHE).map(k => caches.delete(k)))).then(() => self.clients.claim())); });
@@ -18,7 +18,7 @@ function show(d) {
   const actions = [];
   for (let i = 0; i < 2; i++) if (d['a' + i]) actions.push({action: String(i), title: d['a' + i]});
   return self.registration.showNotification(d.title || 'مصروفي', {
-    body: d.body || '', icon: 'icons/icon-192.png', badge: 'icons/badge-96.png',
+    body: d.body || '', icon: 'icon-192.png', badge: 'badge-96.png',
     tag: d.tag, dir: 'rtl', lang: 'ar', data: d, actions, requireInteraction: actions.length > 0
   });
 }
@@ -32,7 +32,7 @@ self.addEventListener('notificationclick', e => {
   n.close();
   const i = e.action;
   if (i && d['x' + i]) {
-    const note = body => self.registration.showNotification('مصروفي', {body, icon: 'icons/icon-192.png', badge: 'icons/badge-96.png', tag: d.tag, dir: 'rtl', lang: 'ar'});
+    const note = body => self.registration.showNotification('مصروفي', {body, icon: 'icon-192.png', badge: 'badge-96.png', tag: d.tag, dir: 'rtl', lang: 'ar'});
     e.waitUntil(
       fetch(C.apiUrl, {method: 'POST', headers: {'Content-Type': 'text/plain;charset=utf-8'}, body: JSON.stringify({fn: 'api_act', args: [d['x' + i], d['s' + i]]})})
         .then(r => r.json())
