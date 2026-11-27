@@ -2,8 +2,9 @@
 importScripts('config.js');
 importScripts('https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js', 'https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging-compat.js');
 const C = self.MASROFY_CONFIG || {};
-const CACHE = 'masrofy-v3';
-const SHELL = ['./', './index.html', './config.js', './manifest.webmanifest', './icon-192.png', './icon-512.png', './badge-96.png'];
+const CACHE = 'masrofy-v7';
+const SHELL = ['./', './index.html', './config.js', './manifest.webmanifest', './icon-192.png', './icon-512.png', './badge-96.png', './notif-192.png', './badge-mono-96.png'];
+const ICON = new URL('notif-192.png', self.registration.scope).href, BADGE = new URL('badge-mono-96.png', self.registration.scope).href;
 
 self.addEventListener('install', e => { e.waitUntil(caches.open(CACHE).then(c => c.addAll(SHELL)).then(() => self.skipWaiting())); });
 self.addEventListener('activate', e => { e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k !== CACHE).map(k => caches.delete(k)))).then(() => self.clients.claim())); });
@@ -24,7 +25,7 @@ function show(d) {
   const actions = [];
   for (let i = 0; i < 2; i++) if (d['a' + i]) actions.push({action: String(i), title: d['a' + i]});
   return self.registration.showNotification(d.title || 'مصروفي', {
-    body: d.body || '', icon: 'icon-192.png', badge: 'badge-96.png',
+    body: d.body || '', icon: ICON, badge: BADGE,
     tag: d.tag, dir: 'rtl', lang: 'ar', data: d, actions, requireInteraction: actions.length > 0
   });
 }
@@ -38,7 +39,7 @@ self.addEventListener('notificationclick', e => {
   n.close();
   const i = e.action;
   if (i && d['x' + i]) {
-    const note = body => self.registration.showNotification('مصروفي', {body, icon: 'icon-192.png', badge: 'badge-96.png', tag: d.tag, dir: 'rtl', lang: 'ar'});
+    const note = body => self.registration.showNotification('مصروفي', {body, icon: ICON, badge: BADGE, tag: d.tag, dir: 'rtl', lang: 'ar'});
     e.waitUntil(
       fetch(C.apiUrl, {method: 'POST', headers: {'Content-Type': 'text/plain;charset=utf-8'}, body: JSON.stringify({fn: 'api_act', args: [d['x' + i], d['s' + i]]})})
         .then(r => r.json())
