@@ -2,7 +2,7 @@
 importScripts('config.js');
 importScripts('https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js', 'https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging-compat.js');
 const C = self.MASROFY_CONFIG || {};
-const CACHE = 'masrofy-v10';
+const CACHE = 'masrofy-v13';
 const SHELL = ['./', './index.html', './config.js', './manifest.webmanifest', './icon-192.png', './icon-512.png', './badge-96.png', './notif-192.png', './badge-mono-96.png'];
 const ICON = new URL('notif-192.png', self.registration.scope).href, BADGE = new URL('badge-mono-96.png', self.registration.scope).href;
 
